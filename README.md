@@ -448,9 +448,4 @@ v-if, v-for, 보간법으로 화면 출력
 
 ## 참고
 
-- [README 구성 참고 프로젝트 - Baek-sohyeon/skala-vue](https://github.com/Baek-sohyeon/skala-vue)
-- [Vue 공식 문서](https://vuejs.org/)
-- [Vue Router 공식 문서](https://router.vuejs.org/)
-- [Pinia 공식 문서](https://pinia.vuejs.org/)
-- [Vite 공식 문서](https://vite.dev/)
 - [Open-Meteo API 문서](https://open-meteo.com/en/docs)
