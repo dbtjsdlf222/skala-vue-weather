@@ -1,0 +1,562 @@
+/* 프로젝트에서 반복해서 사용할 색상을 변수로 정리했습니다. */
+:root {
+  --primary: #5b5bd6;
+  --primary-dark: #4141ad;
+  --sky: #3aa7e8;
+  --text: #24324a;
+  --muted: #6f7c91;
+  --line: #e3e8f0;
+  --surface: #ffffff;
+  --soft: #f5f7fb;
+  --shadow: 0 16px 45px rgba(48, 63, 103, 0.12);
+}
+
+/* 애플리케이션 전체를 감싸는 흰색 패널입니다. */
+.app-container {
+  max-width: 1080px;
+  margin: 24px auto;
+  padding: 32px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* 프로젝트 제목 영역입니다. */
+.app-header {
+  padding: 30px;
+  color: white;
+  background: linear-gradient(135deg, #4545b8 0%, #5b78df 50%, #3aa7e8 100%);
+  border-radius: 22px;
+  box-shadow: 0 14px 30px rgba(69, 69, 184, 0.22);
+}
+
+.app-header h1 {
+  margin: 7px 0 8px;
+  color: white;
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+}
+
+.app-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  opacity: 0.8;
+}
+
+/* 여섯 개 화면을 이동하는 메뉴입니다. */
+.navigation-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 20px 0 26px;
+  padding: 10px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.nav-item {
+  padding: 10px 15px;
+  color: var(--muted);
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--primary);
+  background: white;
+  transform: translateY(-1px);
+}
+
+.navigation-bar .router-link-exact-active {
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--sky));
+  box-shadow: 0 7px 16px rgba(91, 91, 214, 0.23);
+}
+
+/* RouterView가 출력하는 각 학습 화면의 공통 스타일입니다. */
+.app-container main > section {
+  min-height: 480px;
+  padding: 26px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.app-container main > section > h2 {
+  margin: 0 0 7px;
+  font-size: 1.65rem;
+}
+
+.app-container main > section > p {
+  margin-top: 0;
+  color: var(--muted);
+}
+
+/* 날씨 콘텐츠의 최대 너비를 제한하고 가운데 정렬합니다. */
+.dashboard-wrapper {
+  width: 100%;
+  max-width: 760px;
+  margin: 20px auto 0;
+}
+
+.search-box,
+.list-box,
+.base-dashboard-card {
+  margin-bottom: 16px;
+  padding: 18px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-title-row h3 {
+  margin: 0;
+}
+
+.count-chip,
+.mini-label {
+  display: inline-block;
+  padding: 5px 9px;
+  color: var(--primary);
+  background: #ececff;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 검색창과 선택 상자입니다. */
+input,
+select {
+  width: 100%;
+  padding: 11px 13px;
+  color: var(--text);
+  background: white;
+  border: 1px solid #cad3e0;
+  border-radius: 9px;
+  outline: none;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(91, 91, 214, 0.12);
+}
+
+.search-controls {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  gap: 10px;
+}
+
+.button-group,
+.temp-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 8px 13px;
+  color: var(--text);
+  background: white;
+  border: 1px solid #cfd7e4;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.result-summary,
+.store-summary,
+.route-note {
+  margin: 16px 0;
+  padding: 11px 14px;
+  color: var(--primary-dark);
+  background: #f0efff;
+  border-radius: 10px;
+}
+
+/* 날씨 카드 스타일입니다. */
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.weather-card {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 16px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 7px 20px rgba(52, 69, 110, 0.07);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.weather-card:hover {
+  border-color: #9c9cea;
+  box-shadow: 0 12px 25px rgba(52, 69, 110, 0.13);
+  transform: translateY(-2px);
+}
+
+.weather-card.selected {
+  border: 2px solid var(--primary);
+  background: #f7f7ff;
+}
+
+.weather-card h3,
+.weather-card h4,
+.weather-card p {
+  margin-top: 0;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weather-icon {
+  font-size: 34px;
+}
+
+.simple-card {
+  min-height: 145px;
+}
+
+.temperature-text {
+  margin-bottom: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 9px;
+  color: white;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hot {
+  background: #ef6a70;
+}
+
+.cool {
+  background: #559fe7;
+}
+
+.btn-detail {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  color: white;
+  background: var(--primary);
+  border: none;
+}
+
+.status-bar {
+  padding: 12px;
+  color: #18794e;
+  background: #e9f8ef;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.empty-message,
+.error-message {
+  padding: 18px;
+  color: #d64550;
+  background: #fff1f2;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Pinia 설정 영역입니다. */
+.store-toolbar {
+  margin: 18px 0 12px;
+  padding: 14px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+/* 6번 API 화면을 좌우 두 영역으로 나눕니다. */
+.api-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.api-left-panel,
+.api-right-panel {
+  min-width: 0;
+}
+
+.compact-search {
+  margin-bottom: 18px;
+  padding: 14px;
+}
+
+/* 전국 API 지역 카드 영역입니다. */
+.region-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.compact-region-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 10px 0 0;
+}
+
+.region-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 13px;
+  text-align: left;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+
+.region-card:hover {
+  color: var(--primary);
+  background: #f5f5ff;
+}
+
+.region-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.compact-region-card {
+  min-height: 58px;
+  padding: 9px 10px;
+}
+
+.compact-region-card strong {
+  font-size: 13px;
+}
+
+.compact-region-card span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+}
+
+.region-card.selected {
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--sky));
+  border-color: transparent;
+}
+
+.region-card.selected span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.api-right-panel {
+  position: sticky;
+  top: 20px;
+}
+
+.api-card {
+  min-height: 355px;
+  padding: 24px;
+  background: linear-gradient(145deg, #eef6ff, #f3f0ff);
+  border: 1px solid #dbe4f3;
+  border-radius: 18px;
+}
+
+.api-weather-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #d9e0ee;
+}
+
+.api-weather-header h3 {
+  margin: 6px 0 3px;
+  font-size: 2rem;
+}
+
+.api-weather-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.api-eyebrow {
+  color: var(--primary);
+}
+
+.weather-status {
+  padding: 7px 11px;
+  color: white;
+  background: var(--primary);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.weather-metric-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.weather-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 88px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(204, 214, 231, 0.8);
+  border-radius: 12px;
+}
+
+.weather-metric span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.weather-metric strong {
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.temperature-metric strong {
+  color: var(--primary);
+  font-size: 1.7rem;
+}
+
+.loading-message {
+  min-height: 355px;
+  margin: 0;
+  padding: 40px 20px;
+  color: var(--muted);
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  text-align: center;
+}
+
+/* Pinia의 darkMode가 true일 때 적용되는 어두운 테마입니다. */
+.app-container.dark-mode {
+  --text: #eef2ff;
+  --muted: #adb7ca;
+  --line: #384258;
+  --surface: #20293a;
+  --soft: #283247;
+  color: var(--text);
+  background: #182132;
+}
+
+.dark-mode .navigation-bar,
+.dark-mode .weather-card,
+.dark-mode .region-card,
+.dark-mode input,
+.dark-mode select,
+.dark-mode .base-dashboard-card {
+  color: var(--text);
+  background: #283247;
+  border-color: var(--line);
+}
+
+.dark-mode .weather-card.selected,
+.dark-mode .region-card:hover {
+  background: #333e59;
+}
+
+.dark-mode .api-card,
+.dark-mode .store-summary,
+.dark-mode .result-summary,
+.dark-mode .route-note {
+  color: #d9d7ff;
+  background: #302f50;
+}
+
+.dark-mode .api-weather-header {
+  border-bottom-color: #454f67;
+}
+
+.dark-mode .weather-metric {
+  background: #283247;
+  border-color: #414c63;
+}
+
+/* 화면이 좁을 때 카드와 검색창을 한 줄로 바꿉니다. */
+@media (max-width: 760px) {
+  .app-container {
+    margin: 8px;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .app-header,
+  .app-container main > section {
+    padding: 20px;
+  }
+
+  .search-controls,
+  .weather-grid,
+  .region-list,
+  .api-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .api-right-panel {
+    position: static;
+  }
+
+  .compact-region-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav-item {
+    flex: 1 1 30%;
+    text-align: center;
+  }
+}
