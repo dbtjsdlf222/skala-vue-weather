@@ -1,7 +1,7 @@
 <script setup>
-// ref는 값이 바뀌었을 때 Vue가 화면을 다시 그릴 수 있게 합니다.
-// onMounted는 이 화면이 처음 나타난 직후 실행할 작업을 등록합니다.
-import { ref, onMounted } from 'vue'
+// ref는 변경되는 값을 저장하고, computed는 기존 값으로 새로운 결과를 계산합니다.
+// watch는 선택한 지역이 바뀌는 순간 API 요청 함수를 실행합니다.
+import { computed, ref, watch } from 'vue'
 
 // 전국 17개 시·도입니다.
 // 도 지역은 시·도청 소재지의 좌표를 사용합니다.
@@ -27,8 +27,8 @@ const regionList = [
 
 // 입력창에 작성한 검색어를 저장합니다.
 const searchText = ref('')
-// 검색 조건에 맞는 지역만 저장합니다. 처음에는 전체 지역을 넣습니다.
-const searchResult = ref(regionList)
+// 현재 선택한 지역을 저장합니다. 첫 화면에서는 서울을 선택합니다.
+const selectedRegion = ref(regionList[0])
 // API에서 받은 날씨 정보를 저장합니다. 아직 받지 않았으므로 null입니다.
 const weather = ref(null)
 // API 요청 중인지 저장합니다.
@@ -36,26 +36,22 @@ const loading = ref(false)
 // API 요청이 실패했을 때 보여줄 메시지를 저장합니다.
 const errorMessage = ref('')
 
-// input 이벤트 객체를 받아 입력할 때마다 지역을 검색합니다.
-function searchRegion(event) {
-  // event.target.value는 input에 현재 입력된 글자입니다.
-  searchText.value = event.target.value
-
+// 검색어가 바뀔 때마다 조건에 맞는 지역 목록을 자동으로 다시 계산합니다.
+const searchResult = computed(() => {
   // filter는 조건이 true인 지역만 모아 새로운 배열을 만듭니다.
-  searchResult.value = regionList.filter(function (region) {
+  return regionList.filter((region) => {
     // 짧은 이름 또는 전체 지역명에 검색어가 포함되어 있는지 확인합니다.
     return region.name.includes(searchText.value) || region.location.includes(searchText.value)
   })
-}
+})
 
-// 검색어를 지우고 전국 17개 지역을 다시 보여줍니다.
-function resetSearch() {
+// 검색어만 지우면 computed가 전체 지역 목록을 자동으로 다시 계산합니다.
+const resetSearch = () => {
   searchText.value = ''
-  searchResult.value = regionList
 }
 
 // API가 숫자로 보내는 날씨 코드를 한글 상태로 바꿉니다.
-function getWeatherStatus(code) {
+const getWeatherStatus = (code) => {
   if (code === 0) { return '맑음' }
   if (code <= 3)  { return '구름' }
   if (code <= 67) { return '비'  }
@@ -64,7 +60,7 @@ function getWeatherStatus(code) {
 }
 
 // 선택한 지역의 현재 날씨를 Open-Meteo API에서 가져옵니다.
-async function getWeather(region) {
+const getWeather = async (region) => {
   // 요청이 시작되었으므로 로딩을 켜고 이전 오류 메시지를 지웁니다.
   loading.value = true
   errorMessage.value = ''
@@ -104,15 +100,21 @@ async function getWeather(region) {
     // 인터넷 또는 API에 문제가 생기면 오류 메시지를 저장합니다.
     errorMessage.value = '날씨 정보를 가져오지 못했습니다.'
     console.log(error)
+  } finally {
+    // 성공과 실패에 관계없이 요청이 끝나면 로딩을 끕니다.
+    loading.value = false
   }
-  // 성공과 실패에 관계없이 요청이 끝났으므로 로딩을 끕니다.
-  loading.value = false
 }
 
-// 6번 화면이 처음 열리면 서울 날씨를 자동으로 조회합니다.
-onMounted(function () {
-  getWeather(regionList[0])
-})
+// selectedRegion이 바뀔 때마다 해당 지역의 날씨를 자동으로 요청합니다.
+// immediate: true 때문에 화면에 처음 들어왔을 때도 서울 날씨를 바로 요청합니다.
+watch(
+  selectedRegion,
+  (newRegion) => {
+    getWeather(newRegion)
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -125,8 +127,8 @@ onMounted(function () {
     <div class="api-layout">
       <div class="api-left-panel">
         <div class="search-box compact-search">
-          <!-- 입력할 때마다 searchRegion 함수가 실행됩니다. -->
-          <input :value="searchText" type="text" placeholder="예: 서울, 경기도, 제주" @input="searchRegion" />
+          <!-- v-model이 입력창과 searchText를 양방향으로 연결합니다. -->
+          <input v-model="searchText" type="text" placeholder="예: 서울, 경기도, 제주" />
 
           <div class="button-group">
             <!-- 클릭하면 검색어와 검색 결과를 초기 상태로 되돌립니다. -->
@@ -145,8 +147,8 @@ onMounted(function () {
             v-for="region in searchResult"
             :key="region.id"
             class="region-card compact-region-card"
-            :class="{ selected: weather && weather.name === region.name }"
-            @click="getWeather(region)"
+            :class="{ selected: selectedRegion.id === region.id }"
+            @click="selectedRegion = region"
           >
             <strong>{{ region.name }}</strong>
             <span>{{ region.location }}</span>
