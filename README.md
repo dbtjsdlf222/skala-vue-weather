@@ -105,17 +105,17 @@ return nameMatches && statusMatches
 데이터와 이벤트의 방향을 구분했습니다.
 
 ```text
-Parent → Props → SearchBar, Card
-Parent ← Emit  ← SearchBar, Card
+Parent -> Props -> SearchBar, Card
+Parent <- Emit  <- SearchBar, Card
 ```
 
 Card는 도시 정보를 Props로 받고, 관심 도시 버튼을 누르면 부모에게 이벤트를 전달합니다.
 
 ```vue
 <Card
-  :city-item="item"
-  :is-favorite="favoriteCityIds.includes(item.id)"
-  @toggle-favorite="toggleFavorite(item.id)"
+  :item="item"
+  :is-fav="favorite.includes(item.id)"
+  @favorite="toggleFav(item.id)"
 />
 ```
 
@@ -135,7 +135,7 @@ Vue Router를 사용해 목록과 상세 화면을 분리했습니다.
 검색어가 변경되면 현재 URL에도 검색어가 기록됩니다.
 
 ```js
-watch(searchQuery, function (newQuery) {
+watch(search, function (newQuery) {
   router.push({
     path: route.path,
     query: {
@@ -306,14 +306,14 @@ skala-vue-weather/
     ├── stores/
     │   └── configStore.js         # 단위, 테마, 선택 도시 상태
     ├── views/
-    │   ├── Basic.vue              # 1번 기본 날씨 화면
+    │   ├── Index.vue              # 1번 기본 날씨 화면
     │   ├── Search.vue             # 2번 실시간 검색 화면
     │   ├── Component.vue          # 3번 컴포넌트 조립 화면
     │   ├── Router.vue             # 4번 Router 목록 화면
     │   ├── Detail.vue             # 도시 ID 기반 상세 화면
     │   ├── Store.vue              # 5번 Pinia 화면
     │   ├── Api.vue                # 6번 전국 실제 날씨 API 화면
-    │   └── NotFound.vue           # 정의되지 않은 URL 처리
+    │   └── Error404.vue           # 정의되지 않은 URL 처리
     └── components/
         └── weather/
             ├── Mockup.vue         # 기본 날씨 카드와 온도 조작
@@ -328,15 +328,14 @@ skala-vue-weather/
 
 | URL | Route name | View | 설명 |
 |---|---|---|---|
-| `/` | - | Redirect | `/basic`으로 이동 |
-| `/basic` | `Basic` | `Basic.vue` | 배열과 이벤트 기초 |
+| `/` | `Index` | `Index.vue` | 배열과 이벤트 기초 |
 | `/search` | `Search` | `Search.vue` | 실시간 복합 검색 |
 | `/component` | `Component` | `Component.vue` | Props, Emit, Slot |
 | `/router` | `Router` | `Router.vue` | 도시 목록과 Query |
 | `/store` | `Store` | `Store.vue` | Pinia 상태 관리 |
 | `/api` | `Api` | `Api.vue` | 전국 실제 날씨 |
 | `/weather/:cityId` | `Detail` | `Detail.vue` | 도시 ID 기반 상세 |
-| `/:pathMatch(.*)*` | `NotFound` | `NotFound.vue` | 404 화면 |
+| `/:pathMatch(.*)*` | `Error404` | `Error404.vue` | 404 화면 |
 
 ## 전체 데이터 흐름
 

@@ -1,16 +1,16 @@
-/* 모든 요소가 padding과 border를 크기 안에 포함하도록 설정합니다. */
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-/* 페이지 전체의 기본 배경색입니다. */
+
 html {
   background: linear-gradient(145deg, #e8ecff 0%, #eef8ff 55%, #f7f4ff 100%);
 }
 
-/* 브라우저가 기본으로 넣는 body 여백을 제거합니다. */
+
 body {
   min-width: 320px;
   min-height: 100vh;
@@ -18,15 +18,15 @@ body {
   background: linear-gradient(145deg, #e8ecff 0%, #eef8ff 55%, #f7f4ff 100%);
 }
 
-/* 버튼과 input이 부모 요소의 글꼴을 사용하게 합니다. */
+
 button,
 input {
   font: inherit;
 }
 
-/* Vue 애플리케이션이 출력되는 가장 바깥 영역입니다. */
+
 #app {
-  width: min(100%, 1180px);
-  margin: 0 auto;
-  padding: 1rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }

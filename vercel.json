@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/openweather-stations",
+      "destination": "https://api.openweathermap.org/data/3.0/stations"
+    },
+    {
+      "source": "/openweather-stations/:path*",
+      "destination": "https://api.openweathermap.org/data/3.0/stations/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
