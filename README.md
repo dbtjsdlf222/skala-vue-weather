@@ -368,17 +368,6 @@ skala-vue-weather/
 - API2의 측정소 등록·수정·삭제는 OpenWeatherMap 계정의 실제 측정소 데이터에 적용됩니다.
 - OpenWeatherMap API 키 상태나 계정 권한에 따라 개인 측정소 CRUD 요청이 실패할 수 있습니다.
 
-## 검증
-
-제출 전 다음 명령으로 확인합니다.
-
-```bash
-# 코드 규칙을 검사한다.
-npm run lint
-
-# 프로덕션 빌드가 가능한지 확인한다.
-npm run build
-```
 
 ## 참고 자료
 
