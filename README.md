@@ -22,7 +22,6 @@ BALLCAST의 일정 페이지는 선택한 날짜가 포함된 달의 KBO 공식 
 - 개발 환경에서는 Vite 프록시가, 배포 환경에서는 `api/kbo-schedule.js` 서버 함수가 KBO에 필요한 요청 헤더를 붙입니다.
 - OpenWeather는 `/data/2.5/forecast` API를 사용하며, 응답의 `pop` 값을 강수확률로 표시합니다.
 - 일정 요청이 실패하면 기존 샘플 일정으로 전환하고 화면에 안내 문구를 표시합니다.
-- KBO 일정 서비스는 공식 사이트에서 사용하지만 별도 공개 API 문서가 없으므로, KBO 사이트가 변경되면 파싱 코드도 수정해야 할 수 있습니다.
 
 API 키는 `.env.local`에만 저장하고 Git에는 올리지 않습니다. Vercel 배포에서는 프로젝트의 `Settings > Environment Variables`에 `VITE_OPENWEATHER_API_KEY`를 등록합니다. 클라이언트용 Vite 환경변수는 최종 JavaScript에 포함될 수 있으므로 OpenWeather 설정에서 허용 도메인을 제한해야 합니다.
 
