@@ -4,9 +4,9 @@ import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
 
 export default [
-  // 빌드 결과와 설치된 라이브러리는 검사하지 않는다.
+  // 빌드 결과, Vercel 로컬 파일, 설치된 라이브러리는 검사하지 않는다.
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['dist/**', '.vercel/**', 'node_modules/**'],
   },
 
   js.configs.recommended,

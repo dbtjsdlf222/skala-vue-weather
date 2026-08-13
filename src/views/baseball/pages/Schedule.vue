@@ -17,8 +17,13 @@ const search = ref('')
 const riskFilter = ref('all')
 const dateFilter = ref('오늘')
 
+// 현재 선택한 날짜에 포함된 경기만 가져온다.
+const dateGames = computed(() => {
+  return games.value.filter((game) => game.scheduleDay === dateFilter.value)
+})
+
 const filteredGames = computed(() => {
-  return games.value.filter((game) => {
+  return dateGames.value.filter((game) => {
     const keyword = search.value.trim()
     const level = getRiskInfo(game.cancelRisk, game.isDome).level
     const sameKeyword =
@@ -31,9 +36,15 @@ const filteredGames = computed(() => {
   })
 })
 
-const outdoorCount = computed(() => games.value.filter((game) => !game.isDome).length)
-const dangerCount = computed(() => games.value.filter((game) => game.cancelRisk >= 60).length)
-const closeGames = computed(() => games.value.filter((game) => {
+// 날짜 탭을 바꾸면 해당 날짜의 첫 번째 경기를 선택한다.
+const changeDate = (date) => {
+  dateFilter.value = date
+  selectedId.value = dateGames.value[0]?.id || ''
+}
+
+const outdoorCount = computed(() => dateGames.value.filter((game) => !game.isDome).length)
+const dangerCount = computed(() => dateGames.value.filter((game) => game.cancelRisk >= 60).length)
+const closeGames = computed(() => dateGames.value.filter((game) => {
   return Math.abs(game.expectedScore.away - game.expectedScore.home) <= 1
 }).length)
 </script>
@@ -47,14 +58,14 @@ const closeGames = computed(() => games.value.filter((game) => {
         <p>경기별 날씨 위험도와 예상 점수 차를 한 화면에서 확인합니다.</p>
       </div>
       <div class="date-tabs">
-        <button v-for="date in ['오늘', '내일', '주말']" :key="date" :class="{ active: dateFilter === date }" @click="dateFilter = date">
+        <button v-for="date in ['오늘', '내일', '주말']" :key="date" :class="{ active: dateFilter === date }" @click="changeDate(date)">
           {{ date }}
         </button>
       </div>
     </div>
 
     <section class="schedule-summary">
-      <SummaryCard label="전체 경기" description="정규시즌 샘플 일정">{{ games.length }}경기</SummaryCard>
+      <SummaryCard label="전체 경기" description="선택 날짜의 샘플 일정">{{ dateGames.length }}경기</SummaryCard>
       <SummaryCard label="야외 경기" description="기상 영향 대상" tone="green">{{ outdoorCount }}경기</SummaryCard>
       <SummaryCard label="취소 위험" description="위험도 60% 이상" tone="red">{{ dangerCount }}경기</SummaryCard>
       <SummaryCard label="접전 예상" description="예상 점수 차 1점 이하" tone="orange">{{ closeGames }}경기</SummaryCard>
@@ -78,7 +89,7 @@ const closeGames = computed(() => games.value.filter((game) => {
 
     <section class="timeline enterprise-panel">
       <div class="enterprise-panel-head">
-        <div><h3>오늘의 운영 타임라인</h3><span>경기 진행 판단 권장 시점</span></div>
+        <div><h3>{{ dateFilter }} 운영 타임라인</h3><span>경기 진행 판단 권장 시점</span></div>
       </div>
       <div class="timeline-row">
         <div><b>15:00</b><span>구장별 1차 기상 확인</span></div>

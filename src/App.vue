@@ -40,7 +40,6 @@ const changeMode = (value) => {
       <RouterLink to="/store" class="nav-btn">5. Store</RouterLink>
       <RouterLink to="/api" class="nav-btn">6. API1</RouterLink>
       <RouterLink to="/api2" class="nav-btn">7. API2</RouterLink>
-      <RouterLink to="/about" class="nav-btn">8. About</RouterLink>
     </nav>
 
     <main>

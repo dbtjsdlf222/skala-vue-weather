@@ -8,7 +8,6 @@ import Store from "../views/practice/Store.vue";
 import Api from "../views/practice/Api.vue";
 import Api2 from "../views/practice/Api2.vue";
 import Detail from "../views/practice/Detail.vue";
-import About from "../views/practice/About.vue";
 import BallcastLayout from "../views/baseball/BallcastLayout.vue";
 import BallcastDashboard from "../views/baseball/pages/Dashboard.vue";
 import BallcastSchedule from "../views/baseball/pages/Schedule.vue";
@@ -57,11 +56,6 @@ const routes = [
     path: "/weather",
     name: "Detail",
     component: Detail,
-  },
-  {
-    path: "/about",
-    name: "About",
-    component: About,
   },
   {
     path: "/ballcast",

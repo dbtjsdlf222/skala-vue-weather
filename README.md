@@ -1,450 +1,346 @@
-# SKALA Vue Weather Lab
+# SKALA 날씨 연구소 & BALLCAST
 
-Vue 3를 처음 학습하면서 기본 문법부터 컴포넌트 통신, Vue Router, Pinia, 외부 API 연동까지 단계별로 확장한 날씨 대시보드 프로젝트입니다.
+Vue 3 문법을 단계별로 연습한 날씨 프로젝트와 날씨에 따른 야구 경기 취소 가능성을 확인하는 BALLCAST 과제를 하나의 애플리케이션으로 구성했습니다.
 
-하나의 완성 화면만 만드는 대신 학습 과정을 1~6번 메뉴로 분리했습니다. 각 화면은 앞 단계의 개념을 바탕으로 새로운 기능을 추가하며, 마지막 화면에서는 Open-Meteo API로 전국 17개 시·도의 실제 현재 날씨를 조회합니다.
+- 배포 주소: [https://temporary-snappy-zither-11sb6zn.vercel.app](https://temporary-snappy-zither-11sb6zn.vercel.app)
+- GitHub: [https://github.com/dbtjsdlf222/skala-vue-weather](https://github.com/dbtjsdlf222/skala-vue-weather)
 
-## 프로젝트 목표
+화면 오른쪽 위 토글을 사용하면 `Vue 문법 실습`과 `과제` 화면을 전환할 수 있습니다.
 
-- Vue를 처음 배우는 사람도 코드의 실행 순서를 따라갈 수 있도록 작성
-- 같은 날씨 데이터를 기본 문법, 검색, 컴포넌트, Router, Store 순서로 반복 학습
-- 수업 예제를 그대로 끝내지 않고 사용자 기능과 디자인을 단계별로 개선
-- 마지막 단계에서 Mock 데이터와 실제 API 데이터의 차이를 직접 확인
+## 프로젝트 목적
 
-## 학습 진행 순서
+- Vue의 기본 문법부터 Router, Pinia, API 통신까지 순서대로 연습
+- Props, Emit, Slot을 이용해 화면을 작은 컴포넌트로 분리
+- Axios로 실제 날씨 API를 요청하고 로딩과 오류 상태 처리
+- 날씨 데이터를 생활 정보와 야구 경기 운영 정보로 가공
+- ESLint와 Vite 빌드로 제출 전 코드 상태 확인
 
-```text
-1. ref, v-for, v-if, 이벤트
-              ↓
-2. v-model, input, filter를 이용한 검색
-              ↓
-3. Props, Emit, Slot을 이용한 컴포넌트 분리
-              ↓
-4. Vue Router의 Query, Params, 상세 페이지
-              ↓
-5. Pinia의 State, Getter, Action
-              ↓
-6. async/await, fetch, 외부 날씨 API
-```
+## 주요 화면
 
-## 주요 기능
+### Vue 문법 실습
 
-- Vue Router 기반 6개 학습 화면 전환
-- 배열과 `v-for`를 이용한 날씨 카드 출력
-- 날씨 카드 선택 및 온도 증가·감소
-- 도시 이름과 날씨 상태를 이용한 실시간 복합 검색
-- Props와 Emit을 이용한 부모·자식 컴포넌트 통신
-- 관심 도시 등록 및 해제
-- URL Query와 검색어 동기화
-- 동적 Route를 이용한 도시 상세 페이지
-- 상세 화면의 이전·다음 도시 이동
-- Pinia 기반 섭씨·화씨 단위 변경
-- Pinia 기반 선택 도시 및 다크 모드 관리
-- 전국 17개 시·도 실시간 검색
-- Open-Meteo API 기반 현재 기온·습도·풍속 조회
-- 로딩, 오류, 검색 결과 없음 상태 처리
-- 데스크톱과 모바일에 대응하는 반응형 UI
-- 존재하지 않는 URL을 처리하는 404 화면
+| 번호 | 화면 | 학습 내용 |
+|---|---|---|
+| 1 | 기본 | `ref`, `v-for`, `v-if`, 이벤트 처리 |
+| 2 | 검색 | `v-model`, `computed`, 배열 `filter()` |
+| 3 | 컴포넌트 | Props, Emit, Slot, Element Plus 알림창 |
+| 4 | Router | Query String, 상세 페이지, 이전·다음 이동 |
+| 5 | Store | Pinia State와 Action, 섭씨·화씨 전환, 다크 모드 |
+| 6 | API1 | Axios와 Open-Meteo를 이용한 전국 날씨 조회 |
+| 7 | API2 | Axios와 OpenWeatherMap을 이용한 GET·POST·PUT·DELETE |
 
-## 화면별 구현 상세
+### 1. 기본
 
-### 1. 기본 날씨
+더미 날씨 배열을 반복 출력하고 선택한 카드와 검색 결과를 반응형으로 표시합니다.
 
-`Mockup.vue`에서 연습용 날씨 배열을 `ref`로 선언하고 `v-for`로 반복 출력합니다.
+- `ref`로 검색어, 선택 도시, 안내 문구 관리
+- `v-for`로 도시 카드 반복 출력
+- `v-if`로 검색 결과가 없을 때 안내 문구 출력
+- 카드 클릭 이벤트로 선택 상태 변경
 
-각 카드에는 다음 기능을 추가했습니다.
+### 2. 검색
 
-- 날씨 상태에 따른 아이콘 표시
-- 25℃ 기준 더움·추움 배지 표시
-- 클릭한 카드 테두리 강조
-- `-1℃`, `+1℃` 버튼으로 온도 변경
-- 카드 클릭과 상세보기 버튼 클릭을 `.stop`으로 분리
-- 전체 도시 개수와 선택 도시 안내 문구 표시
-
-온도 변경은 배열 안의 도시 객체를 함수에 전달하는 방식으로 구현했습니다.
+검색어와 날씨 상태를 입력받아 조건에 맞는 도시만 보여줍니다.
 
 ```js
-function changeTemperature(item, amount) {
-  item.temp = item.temp + amount
-}
-```
-
-### 2. 실시간 검색
-
-도시 이름과 날씨 상태를 함께 검색할 수 있습니다.
-
-- `v-model`로 검색어와 입력창 연결
-- `computed`로 입력 즉시 검색 결과 자동 계산
-- `filter()`로 조건에 맞는 도시만 반환
-- 검색 결과 개수 표시
-- 초기화 버튼으로 검색 조건 복원
-- 결과가 없으면 Empty 메시지 표시
-
-검색 조건은 도시명과 날씨 상태가 모두 일치하도록 작성했습니다.
-
-```js
-const nameMatches = weather.name.includes(searchText.value)
-const statusMatches =
-  statusFilter.value === '전체' ||
-  weather.status === statusFilter.value
-
-return nameMatches && statusMatches
-```
-
-### 3. 컴포넌트 통신
-
-큰 화면을 다음과 같은 작은 컴포넌트로 분리했습니다.
-
-| 컴포넌트 | 역할 |
-|---|---|
-| `Parent.vue` | 검색 상태, 관심 도시, 날씨 배열 관리 |
-| `SearchBar.vue` | 검색어 입력 및 변경 이벤트 전달 |
-| `Card.vue` | 날씨 정보 출력 및 사용자 이벤트 전달 |
-| `BaseDashboardCard.vue` | Slot 기반 공통 박스 레이아웃 |
-
-데이터와 이벤트의 방향을 구분했습니다.
-
-```text
-Parent -> Props -> SearchBar, Card
-Parent <- Emit  <- SearchBar, Card
-```
-
-Card는 도시 정보를 Props로 받고, 관심 도시 버튼을 누르면 부모에게 이벤트를 전달합니다.
-
-```vue
-<Card
-  :item="item"
-  :is-fav="favorite.includes(item.id)"
-  @favorite="toggleFav(item.id)"
-/>
-```
-
-### 4. Vue Router
-
-Vue Router를 사용해 목록과 상세 화면을 분리했습니다.
-
-- `RouterLink`로 메뉴 이동
-- `RouterView`에 현재 URL의 View 출력
-- `router.push()`로 상세 페이지 이동
-- `/weather/:cityId`에서 도시 ID 전달
-- `route.params.cityId`로 도시 ID 읽기
-- 검색어를 `?search=` Query에 반영
-- 상세 화면에서 이전·다음 도시 순환 이동
-- Catch-all Route로 404 화면 처리
-
-검색어가 변경되면 현재 URL에도 검색어가 기록됩니다.
-
-```js
-watch(search, function (newQuery) {
-  router.push({
-    path: route.path,
-    query: {
-      search: newQuery || undefined,
-    },
+// 원본 배열은 변경하지 않고 검색 조건에 맞는 새 배열을 만든다.
+const result = computed(() => {
+  return cityList.filter((item) => {
+    return item.name.includes(search.value)
   })
 })
 ```
 
-### 5. Pinia 상태 관리
+`computed`는 검색어가 변경될 때마다 결과를 다시 계산하므로 별도의 검색 버튼 없이 화면이 바로 갱신됩니다.
 
-`configStore.js`에서 여러 컴포넌트가 공유할 상태를 관리합니다.
+### 3. 컴포넌트
 
-| Store 값 | 구분 | 역할 |
-|---|---|---|
-| `unit` | State | 섭씨 또는 화씨 저장 |
-| `darkMode` | State | 밝은 화면 또는 어두운 화면 저장 |
-| `selectedCity` | State | 사용자가 마지막으로 선택한 도시 저장 |
-| `unitSymbol` | Getter | 현재 단위에 맞는 ℃ 또는 ℉ 계산 |
-| `toggleUnit()` | Action | 섭씨와 화씨 전환 |
-| `toggleDarkMode()` | Action | 다크 모드 전환 |
-| `selectCity()` | Action | 선택 도시 변경 |
+날씨 화면을 역할에 따라 나누고 부모와 자식의 데이터 흐름을 연습했습니다.
 
-화씨 변환 공식은 다음과 같습니다.
-
-```js
-fahrenheit = Math.round((celsius * 9) / 5 + 32)
-```
-
-다크 모드 상태는 최상위 `App.vue`에서 사용하므로 5번 화면에서 변경한 테마가 다른 메뉴에서도 유지됩니다.
-
-### 6. 실제 날씨 API
-
-Open-Meteo API를 사용해 실제 현재 날씨를 조회합니다.
-
-- API 키와 회원가입 없이 실행
-- 전국 17개 시·도 배열 제공
-- `v-model`과 `computed`를 이용한 지역명 실시간 검색
-- 선택 지역 변경을 `watch`가 감지해 해당 좌표로 API 요청
-- 왼쪽 지역 목록과 오른쪽 날씨 정보의 2단 레이아웃
-- 기온·습도·풍속·상태를 작은 정보 칸으로 구분
-- 현재 기온, 습도, 풍속, 날씨 상태 표시
-- 첫 화면 진입 시 서울 날씨 자동 조회
-- 요청 중 로딩 메시지 표시
-- 요청 실패 시 오류 메시지 표시
-
-도 지역은 시·도청 소재지 좌표를 대표값으로 사용합니다.
-
-| 지역 | 기준 위치 |
+| 컴포넌트 | 역할 |
 |---|---|
-| 경기 | 수원 |
-| 강원 | 춘천 |
-| 충북 | 청주 |
-| 충남 | 홍성 |
-| 전북 | 전주 |
-| 전남 | 무안 |
-| 경북 | 안동 |
-| 경남 | 창원 |
-| 제주 | 제주 |
-
-API 요청 흐름은 다음과 같습니다.
+| `Parent.vue` | 검색어, 검색 결과, 관심 도시 상태 관리 |
+| `SearchBar.vue` | `v-model` 입력값을 Emit으로 부모에게 전달 |
+| `Card.vue` | Props로 도시를 받고 선택·상세·관심 이벤트 전달 |
+| `BaseBoard.vue` | Slot으로 전달받은 내용을 공통 박스에 출력 |
 
 ```text
-지역 카드 클릭으로 selectedRegion 변경
-    ↓
-watch가 변경 감지
-    ↓
-getWeather(newRegion) 실행
-    ↓
-위도와 경도로 API URL 생성
-    ↓
-fetch()로 GET 요청
-    ↓
-response.json()으로 JSON 변환
-    ↓
-weather ref에 필요한 값 저장
-    ↓
-Vue가 화면 자동 업데이트
+Parent -> Props -> SearchBar, Card
+Parent <- Emit  <- SearchBar, Card
+Parent -> Slot  -> BaseBoard
 ```
 
-실제 요청에서는 선택한 지역의 위도와 경도를 URL에 연결하고, 응답 데이터 중 화면에 필요한 값만 저장합니다.
+상세보기는 브라우저 기본 `alert` 대신 Element Plus의 `ElMessageBox`를 사용했습니다.
 
-```js
-const response = await fetch(url)
-const data = await response.json()
+### 4. Router
 
-weather.value = {
-  name: region.name,
-  temperature: data.current.temperature_2m,
-  humidity: data.current.relative_humidity_2m,
-  windSpeed: data.current.wind_speed_10m,
-  status: getWeatherStatus(data.current.weather_code),
-}
+검색어와 선택 도시 ID를 Query String에 저장합니다.
+
+```text
+/router?search=서울
+/weather?cityId=city_01
 ```
 
-화면은 데스크톱에서 왼쪽 지역 검색 영역과 오른쪽 날씨 정보 영역을 같은 비율로 배치했습니다. 화면 폭이 좁아지면 한 열로 변경해 지역 선택 영역 아래에 날씨 결과가 표시됩니다.
+- `useRoute()`로 현재 Query 값 읽기
+- `useRouter()`와 `router.push()`로 주소 이동
+- 검색어를 `?search=`와 동기화
+- 상세 페이지에서 도시 순서를 기준으로 이전·다음 이동
+- 정의되지 않은 주소는 `Error404.vue`로 연결
+
+### 5. Store
+
+`configStore.js`에서 여러 화면이 공유할 설정을 관리합니다.
+
+| State | 역할 |
+|---|---|
+| `unit` | 섭씨 또는 화씨 단위 저장 |
+| `darkMode` | 밝은 화면과 어두운 화면 상태 저장 |
+| `selectedCity` | 마지막으로 선택한 도시 저장 |
+
+화씨는 `섭씨 × 9 / 5 + 32` 공식으로 계산합니다.
+
+### 6. API1
+
+Open-Meteo API에서 선택한 지역의 현재 날씨를 가져옵니다. 이 API는 별도 키가 필요하지 않습니다.
+
+- 지역명과 기준 위치 검색
+- 선택 지역 변경을 `watch`로 감지
+- `watch(..., { immediate: true })`로 첫 화면에서 즉시 요청
+- 현재 기온, 습도, 풍속, 날씨 상태, 강수 확률 표시
+- 요청 중, 요청 실패, 검색 결과 없음 상태 구분
+
+받아온 날씨를 다시 계산해 자취 생활에 필요한 정보도 보여줍니다.
+
+- 빨래 추천
+- 환기 가능 여부
+- 대청소 추천
+- 불쾌지수
+- 집콕 추천
+
+### 7. API2
+
+OpenWeatherMap의 현재 날씨 API와 개인 측정소 API를 Axios로 요청합니다.
+
+| 버튼 | HTTP Method | 동작 |
+|---|---|---|
+| 현재 날씨 GET | `GET` | 입력한 위도와 경도의 현재 날씨 조회 |
+| 측정소 등록 | `POST` | 새로운 개인 측정소 생성 |
+| 측정소 목록 | `GET` | 계정에 등록된 측정소 조회 |
+| 선택 측정소 수정 | `PUT` | 측정소 이름과 위치 수정 |
+| 선택 측정소 삭제 | `DELETE` | 선택한 측정소 삭제 |
+
+입력창과 알림창에는 Element Plus의 `ElInput`, `ElInputNumber`, `ElMessage`, `ElMessageBox`를 사용했습니다. 샘플 데이터 5개를 제공해 교수자가 위치 값을 직접 입력하지 않아도 요청을 확인할 수 있게 했습니다.
+
+개발 환경에서는 Vite 프록시가 `/openweather-stations` 요청을 OpenWeatherMap으로 전달하고, 배포 환경에서는 `vercel.json`의 Rewrite가 같은 역할을 합니다.
+
+## BALLCAST 과제
+
+BALLCAST는 날씨에 따라 야구 경기가 취소될 가능성을 확인하는 경기 운영 대시보드입니다. 화면을 크게 채우는 별도 레이아웃과 하위 Router를 사용했습니다.
+
+### 화면 구성
+
+| 메뉴 | 주요 기능 |
+|---|---|
+| 통합 대시보드 | 실시간 구장 날씨, 취소 가능성, 예상 스코어, 양 팀 기록, 직관 준비 정보 |
+| 경기 일정 | 날짜·검색어·위험 단계 필터, 운영 타임라인 |
+| 구장 날씨 | 구장별 날씨 카드, 선택 구장 상세 관측, 비교표 |
+| 팀 기록 | 샘플 시즌 순위와 두 팀의 승률·최근 흐름 비교 |
+| 운영 관리 | 취소 계산 기준, 경기 전 체크리스트, 운영 로그 |
+
+### 날씨 자동 조회
+
+대시보드가 열리면 5개 구장의 위도와 경도로 OpenWeatherMap API를 요청합니다.
+
+```text
+화면 진입
+  -> 5개 구장의 현재 날씨를 Promise.all()로 요청
+  -> 강수량, 습도, 풍속 저장
+  -> 경기별 취소 가능성 다시 계산
+  -> 5분마다 자동 갱신
+  -> 다른 화면으로 이동하면 타이머 종료
+```
+
+API 요청에 실패하면 처음 준비한 샘플 날씨를 유지해 화면 전체가 비어 있지 않도록 처리했습니다.
+
+### 취소 가능성 계산
+
+취소 가능성은 복잡한 인공지능 모델이 아니라 수업에서 배운 조건문으로 계산합니다.
+
+```text
+기본값 5점
+  + 시간당 강수량 점수
+  + 습도 점수
+  + 풍속 점수
+  = 취소 가능성(최대 95%)
+```
+
+- 60% 이상: 취소 위험
+- 30% 이상: 진행 주의
+- 30% 미만: 정상 예상
+- 돔구장: 날씨와 관계없이 2%로 표시
+
+이 값은 실습을 위한 참고 지표이며 실제 경기 취소 발표가 아닙니다. 예상 스코어와 팀 기록도 공식 실시간 기록이 아닌 더미 데이터입니다.
+
+### 브라우저 저장
+
+관심 경기와 알림 설정은 `localStorage`에 저장합니다. 같은 브라우저에서는 새로고침해도 설정이 유지되지만, 브라우저 데이터를 삭제하거나 다른 브라우저를 사용하면 공유되지 않습니다.
 
 ## 기술 스택
 
 | 구분 | 기술 | 사용 목적 |
 |---|---|---|
-| UI 프레임워크 | Vue 3 | Composition API와 `<script setup>` 기반 화면 구성 |
-| 빌드 도구 | Vite | 개발 서버, HMR, 프로덕션 빌드 |
-| 라우팅 | Vue Router | 메뉴 이동, Query, Params, 404 Route |
-| 상태 관리 | Pinia | 온도 단위, 테마, 선택 도시 공유 |
-| HTTP 통신 | Fetch API | Open-Meteo 날씨 데이터 요청 |
-| 외부 API | Open-Meteo | 현재 기온, 습도, 풍속, 날씨 코드 제공 |
-| 스타일 | CSS | 카드형 UI, 다크 모드, 반응형 레이아웃 |
+| Frontend | Vue 3 | Composition API와 `<script setup>` 기반 화면 구현 |
+| Build | Vite | 개발 서버와 프로덕션 빌드 |
+| Router | Vue Router | 실습 페이지와 BALLCAST 하위 페이지 연결 |
+| Store | Pinia | 단위, 테마, 선택 도시 공유 |
+| HTTP | Axios | Open-Meteo와 OpenWeatherMap 요청 |
+| UI | Element Plus | Select, Switch, Input, Progress, Message, Dialog |
+| Code Check | ESLint | Vue와 JavaScript 문법 및 코드 규칙 검사 |
+| Hosting | Vercel | 정적 사이트 배포와 SPA/API Rewrite |
 
 ## 실행 방법
 
-Node.js `20.19.0` 이상 또는 `22.12.0` 이상 환경을 권장합니다.
-
-### 1. 프로젝트 폴더 이동
+### 1. 프로젝트 설치
 
 ```bash
+# 프로젝트 폴더로 이동한다.
 cd skala-vue-weather
+
+# package-lock.json에 기록된 패키지를 설치한다.
+npm ci
 ```
 
-### 2. 패키지 설치
+Node.js는 `20.19.0` 이상 또는 `22.12.0` 이상을 사용합니다.
 
-```bash
-npm install
+### 2. 환경변수 설정
+
+프로젝트 루트에 `.env.local` 파일을 만들고 OpenWeatherMap API 키를 입력합니다.
+
+```dotenv
+# OpenWeatherMap 현재 날씨와 개인 측정소 요청에 사용한다.
+VITE_OPENWEATHER_API_KEY=발급받은_API_KEY
 ```
+
+`.env.local`은 `.gitignore`에 포함되어 GitHub에 올라가지 않습니다. 다만 `VITE_`로 시작하는 값은 Vite 빌드 후 브라우저 코드에 포함되므로 서버용 비밀 키 보관 방식으로 사용할 수는 없습니다.
 
 ### 3. 개발 서버 실행
 
 ```bash
+# 기본 개발 서버를 실행한다.
 npm run dev
 ```
 
-터미널에 표시된 로컬 주소를 브라우저에서 엽니다.
-
-```text
-http://localhost:5173
-```
-
-### 4. 배포용 빌드
+외부 기기에서도 접속해야 한다면 다음과 같이 실행합니다.
 
 ```bash
+# 같은 네트워크의 다른 기기에서도 접속할 수 있게 연다.
+npm run dev -- --host 0.0.0.0
+```
+
+### 4. 검사와 빌드
+
+```bash
+# ESLint로 코드 오류와 규칙 위반을 확인한다.
+npm run lint
+
+# 제출 또는 배포할 프로덕션 파일을 생성한다.
 npm run build
-```
 
-### 5. 빌드 결과 미리보기
-
-```bash
+# 생성된 dist 결과를 로컬에서 미리 확인한다.
 npm run preview
 ```
-
-Open-Meteo는 이 프로젝트에서 API 키를 사용하지 않으므로 별도의 `.env` 설정이 필요하지 않습니다.
 
 ## 프로젝트 구조
 
 ```text
 skala-vue-weather/
-├── index.html                     # Vue 애플리케이션이 들어갈 HTML
-├── package.json                   # 패키지와 npm 명령 관리
-├── vite.config.js                 # Vue 플러그인과 @ 경로 별칭 설정
-├── README.md
+├── index.html
+├── package.json
+├── eslint.config.js               # ESLint 설정
+├── vite.config.js                 # Vue 설정과 개발용 API 프록시
+├── vercel.json                    # SPA와 배포용 API Rewrite
 └── src/
-    ├── main.js                    # Vue 앱 생성, Pinia와 Router 등록
-    ├── App.vue                    # 공통 헤더, 메뉴, RouterView, 다크 모드
+    ├── App.vue                    # 실습·과제 전환과 실습 메뉴
+    ├── main.js                    # Vue, Pinia, Router 등록
     ├── assets/
-    │   ├── main.css               # body와 #app 기본 스타일
-    │   └── exercise.css           # 메뉴, 카드, 반응형, 다크 모드 스타일
-    ├── router/
-    │   └── index.js               # URL과 View 연결
-    ├── stores/
-    │   └── configStore.js         # 단위, 테마, 선택 도시 상태
-    ├── views/
-    │   ├── Index.vue              # 1번 기본 날씨 화면
-    │   ├── Search.vue             # 2번 실시간 검색 화면
-    │   ├── Component.vue          # 3번 컴포넌트 조립 화면
-    │   ├── Router.vue             # 4번 Router 목록 화면
-    │   ├── Detail.vue             # 도시 ID 기반 상세 화면
-    │   ├── Store.vue              # 5번 Pinia 화면
-    │   ├── Api.vue                # 6번 전국 실제 날씨 API 화면
-    │   └── Error404.vue           # 정의되지 않은 URL 처리
-    └── components/
-        └── weather/
-            ├── Mockup.vue         # 기본 날씨 카드와 온도 조작
-            ├── Parent.vue         # 자식 컴포넌트 상태 관리
-            ├── SearchBar.vue      # Props와 Emit 기반 검색창
-            ├── Card.vue           # 재사용 날씨 카드
-            ├── BaseDashboardCard.vue # Slot 기반 공통 레이아웃
-            └── UnitToggler.vue    # Pinia 단위와 테마 변경
+    │   ├── exercise.css           # Vue 실습 화면 스타일
+    │   └── assignment.css         # BALLCAST 공통 스타일
+    ├── components/
+    │   ├── weather/               # 날씨 실습 컴포넌트
+    │   └── baseball/              # 경기 일정과 요약 카드
+    ├── data/
+    │   ├── data.js                # 도시, 지역, API2 샘플 데이터
+    │   └── baseball/baseballData.js # 야구 경기 더미 데이터
+    ├── router/index.js            # 전체 Route 설정
+    ├── stores/configStore.js      # Pinia 공통 상태
+    ├── utils/baseball/weatherRisk.js # 취소 가능성 계산 함수
+    └── views/
+        ├── practice/              # 1~7번 Vue 실습 화면
+        ├── baseball/              # BALLCAST Layout과 5개 페이지
+        └── Error404.vue           # 존재하지 않는 주소 처리
 ```
 
 ## Route 구성
 
-| URL | Route name | View | 설명 |
-|---|---|---|---|
-| `/` | `Index` | `Index.vue` | 배열과 이벤트 기초 |
-| `/search` | `Search` | `Search.vue` | 실시간 복합 검색 |
-| `/component` | `Component` | `Component.vue` | Props, Emit, Slot |
-| `/router` | `Router` | `Router.vue` | 도시 목록과 Query |
-| `/store` | `Store` | `Store.vue` | Pinia 상태 관리 |
-| `/api` | `Api` | `Api.vue` | 전국 실제 날씨 |
-| `/weather/:cityId` | `Detail` | `Detail.vue` | 도시 ID 기반 상세 |
-| `/:pathMatch(.*)*` | `Error404` | `Error404.vue` | 404 화면 |
+### Vue 문법 실습
 
-## 전체 데이터 흐름
+| URL | 화면 |
+|---|---|
+| `/` | 1. 기본 |
+| `/search` | 2. 검색 |
+| `/component` | 3. 컴포넌트 |
+| `/router` | 4. Router |
+| `/weather?cityId=city_01` | 도시 상세 |
+| `/store` | 5. Store |
+| `/api` | 6. API1 |
+| `/api2` | 7. API2 |
 
-```text
-사용자 입력 또는 버튼 클릭
-        ↓
-View 또는 Component의 함수 실행
-        ↓
-ref 상태 변경 또는 Pinia Action 호출
-        ↓
-필요한 경우 fetch로 외부 API 요청
-        ↓
-응답 JSON에서 화면에 필요한 값 저장
-        ↓
-v-if, v-for, 보간법으로 화면 출력
-        ↓
-상태 변경을 감지한 Vue가 화면 자동 업데이트
-```
+### BALLCAST
 
-각 영역의 역할은 다음과 같습니다.
+| URL | 화면 |
+|---|---|
+| `/ballcast/dashboard` | 통합 대시보드 |
+| `/ballcast/schedule` | 경기 일정 |
+| `/ballcast/stadiums` | 구장 날씨 |
+| `/ballcast/records` | 팀 기록 |
+| `/ballcast/operations` | 운영 관리 |
 
-- **View**: URL에 대응하는 페이지와 페이지 상태 관리
-- **Component**: 재사용할 수 있는 작은 화면과 사용자 이벤트 처리
-- **Router**: URL과 View 연결, 상세 페이지 이동
-- **Pinia Store**: 여러 컴포넌트가 공유하는 상태 관리
-- **API**: 서버에서 실제 날씨 데이터 제공
-- **CSS**: 공통 디자인, 선택 상태, 다크 모드, 반응형 처리
+## 구현하면서 확인한 점
 
-## 화면 설계
+1. Props는 부모에서 자식으로 데이터를 보내고 Emit은 자식의 행동을 부모에게 알릴 때 사용했습니다.
+2. Slot은 공통 박스 디자인 안에 서로 다른 내용을 넣을 때 사용했습니다.
+3. `computed`는 원본 상태로 검색 결과나 통계처럼 새로운 값을 계산할 때 사용했습니다.
+4. `watch`는 검색어와 URL을 맞추거나 선택 지역 변경 시 API를 호출할 때 사용했습니다.
+5. `onMounted`와 `onUnmounted`를 이용해 BALLCAST 자동 갱신 타이머를 시작하고 종료했습니다.
+6. 개발 서버의 프록시는 Vercel 배포에서 동작하지 않으므로 `vercel.json`에 같은 Rewrite를 추가했습니다.
 
-- 모든 메뉴에서 같은 헤더와 내비게이션을 사용해 현재 학습 위치를 쉽게 확인
-- 선택된 메뉴, 도시, 지역 카드는 색상과 테두리로 구분
-- 버튼과 정보 카드를 둥근 형태로 통일
-- 로딩, 오류, 검색 결과 없음 상태를 각각 다른 메시지로 표시
-- 6번 화면은 지역 선택과 결과 확인이 동시에 가능하도록 좌우 분할
-- 모바일에서는 카드 수와 열 개수를 줄이는 반응형 레이아웃 적용
+## 구현 범위와 주의사항
 
-## 적용한 Vue 개념
-
-### 반응형 상태
-
-- `ref`: 검색어, 배열, 선택 도시, 로딩, 오류 메시지 저장
-- `computed`: 검색 결과와 단위 기호처럼 기존 값으로 계산되는 데이터
-- `watch`: 검색어 변경을 감지해 URL Query 변경
-- `watchEffect`: 사용하는 반응형 값을 자동으로 추적
-- `onMounted`: 화면 진입 시 초기 데이터 설정 또는 API 호출
-
-### Template 문법
-
-- `{{ value }}`: 데이터 출력
-- `v-model`: 입력 요소와 데이터 연결
-- `v-for`: 배열 반복 출력
-- `v-if / v-else-if / v-else`: 상태별 화면 출력
-- `:class`: 상태에 따른 CSS 클래스 변경
-- `@click / @input / @change`: 사용자 이벤트 처리
-- `.stop`: 이벤트가 부모 요소로 전달되는 것을 차단
-
-### 컴포넌트 통신
-
-- Props: 부모가 자식에게 데이터 전달
-- Emit: 자식이 부모에게 사용자 행동 전달
-- Slot: 부모가 공통 컴포넌트 내부에 화면 내용 전달
-
-## 직접 개선한 내용
-
-수업의 기본 날씨 예제에서 다음 항목을 직접 확장했습니다.
-
-1. 한 화면에 있던 예제를 여섯 개 Route로 분리
-2. 기본 카드에 아이콘, 선택 상태, 온도 조작 기능 추가
-3. 단순 도시 검색을 실시간 복합 필터로 개선
-4. Card 컴포넌트에 관심 도시 Props와 Emit 추가
-5. 상세 페이지에 이전·다음 도시 순환 이동 추가
-6. Pinia Store에 다크 모드와 선택 도시 상태 추가
-7. `v-model`, `computed`, `watch` 흐름으로 전국 17개 시·도의 실제 날씨 API 연결
-8. 로딩, 오류, Empty 상태를 구분해 사용자에게 표시
-9. 전체 화면을 카드형 반응형 디자인으로 개선
-10. Vue 초보자가 실행 흐름을 이해할 수 있도록 소스 코드에 주석 추가
-
-## 문제 해결 및 개선 과정
-
-| 처음 상태 | 발견한 문제 | 개선 방법 |
-|---|---|---|
-| 모든 예제가 한 화면에 있음 | 학습 내용이 섞이고 화면이 길어짐 | 6개 Route로 나누고 공통 메뉴 추가 |
-| 도시 이름만 검색 | 원하는 날씨 상태를 함께 찾기 어려움 | 도시명과 상태를 동시에 확인하는 복합 필터 적용 |
-| 카드 내용을 부모에서 반복 작성 | 같은 UI가 중복됨 | `Card.vue`와 `BaseDashboardCard.vue`로 분리 |
-| 컴포넌트 내부에서만 상태 사용 | 다른 화면과 설정 공유가 어려움 | Pinia Store에서 단위, 테마, 선택 도시 관리 |
-| 고정된 연습 데이터만 표시 | 실제 데이터 흐름을 확인할 수 없음 | Open-Meteo API와 `async/await` 연결 |
-| API 목록과 결과가 세로로 길게 배치 | 지역을 바꿀 때 결과 비교가 불편함 | 왼쪽 선택, 오른쪽 결과의 2단 레이아웃으로 변경 |
-
-## 현재 구현 범위와 향후 개선
-
-- 1~5번 화면은 Vue 문법 학습을 위한 Mock 데이터를 사용합니다.
-- 6번 도 지역의 날씨는 시·도 전체 평균이 아니라 시·도청 소재지의 대표 좌표 기준입니다.
-- 날씨 코드는 학습 수준에 맞춰 맑음, 구름, 비, 눈, 흐림으로 단순 분류했습니다.
-- Pinia 상태는 메모리에 저장되므로 새로고침하면 초기값으로 돌아갑니다.
-- 다음 단계에서는 Local Storage 저장, 위치 기반 조회, 예보 데이터, API 요청 로직 분리를 추가할 수 있습니다.
+- 날씨는 각 지역 전체 평균이 아니라 코드에 저장된 대표 좌표 기준입니다.
+- BALLCAST의 취소 가능성은 강수량, 습도, 풍속을 이용한 단순 규칙 기반 계산입니다.
+- 경기 일정, 예상 점수, 팀 성적, 운영 로그는 화면 실습을 위한 더미 데이터입니다.
+- 실제 경기 진행 여부는 KBO와 구단의 공식 발표를 확인해야 합니다.
+- API2의 측정소 등록·수정·삭제는 OpenWeatherMap 계정의 실제 측정소 데이터에 적용됩니다.
+- OpenWeatherMap API 키 상태나 계정 권한에 따라 개인 측정소 CRUD 요청이 실패할 수 있습니다.
 
 ## 검증
 
-다음 항목을 확인했습니다.
+제출 전 다음 명령으로 확인합니다.
 
-- `npm run build` 성공
-- 도시 이름과 날씨 상태 검색 정상 동작
-- 관심 도시 등록 및 해제 정상 동작
-- 상세 페이지 및 이전·다음 도시 이동 정상 동작
-- Pinia 단위 변경과 다크 모드 정상 동작
-- 정의되지 않은 URL의 404 화면 연결
-- 브라우저 콘솔 오류 없음
+```bash
+# 코드 규칙을 검사한다.
+npm run lint
 
-## 참고
+# 프로덕션 빌드가 가능한지 확인한다.
+npm run build
+```
 
+## 참고 자료
+
+- [Vue 3 공식 문서](https://vuejs.org/)
+- [Vue Router 공식 문서](https://router.vuejs.org/)
+- [Pinia 공식 문서](https://pinia.vuejs.org/)
+- [Axios 공식 문서](https://axios-http.com/)
+- [Element Plus 공식 문서](https://element-plus.org/)
 - [Open-Meteo API 문서](https://open-meteo.com/en/docs)
+- [OpenWeatherMap API 문서](https://openweathermap.org/api)
