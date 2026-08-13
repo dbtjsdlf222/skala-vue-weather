@@ -53,3 +53,24 @@ export const riskOptions = [
   { label: '진행 주의', value: 'warning' },
   { label: '취소 위험', value: 'danger' },
 ]
+
+// 공식 일정의 팀 약칭을 기존 팀 정보와 연결한다.
+export const teamProfiles = baseballGames.reduce((result, game) => {
+  result[game.away.shortName] = game.away
+  result[game.home.shortName] = game.home
+  return result
+}, {})
+
+// KBO 일정에 표시되는 구장 이름과 날씨 조회 좌표를 연결한다.
+export const stadiumInfo = {
+  잠실: { name: '잠실야구장', city: '서울', latitude: 37.5122, longitude: 127.0719, isDome: false },
+  고척: { name: '고척스카이돔', city: '서울', latitude: 37.4982, longitude: 126.8671, isDome: true },
+  문학: { name: '인천 SSG랜더스필드', city: '인천', latitude: 37.437, longitude: 126.6933, isDome: false },
+  수원: { name: '수원 KT위즈파크', city: '수원', latitude: 37.2998, longitude: 127.0097, isDome: false },
+  대전: { name: '대전 한화생명 볼파크', city: '대전', latitude: 36.3171, longitude: 127.4292, isDome: false },
+  대구: { name: '대구 삼성라이온즈파크', city: '대구', latitude: 35.8412, longitude: 128.6817, isDome: false },
+  광주: { name: '광주 챔피언스필드', city: '광주', latitude: 35.1681, longitude: 126.8889, isDome: false },
+  사직: { name: '부산 사직야구장', city: '부산', latitude: 35.194, longitude: 129.0616, isDome: false },
+  창원: { name: '창원 NC파크', city: '창원', latitude: 35.2225, longitude: 128.5823, isDome: false },
+  울산: { name: '울산 문수야구장', city: '울산', latitude: 35.5322, longitude: 129.2656, isDome: false },
+}

@@ -1,39 +1,19 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import axios from 'axios'
-import {
-  ElInput,
-  ElMessage,
-  ElOption,
-  ElProgress,
-  ElSelect,
-  ElSwitch,
-} from 'element-plus'
+import { storeToRefs } from 'pinia'
+import { ElInput, ElMessage, ElOption, ElProgress, ElSelect, ElSwitch } from 'element-plus'
 import SummaryCard from '@/components/baseball/SummaryCard.vue'
 import GameSchedule from '@/components/baseball/GameSchedule.vue'
-import { baseballGames, riskOptions } from '@/data/baseball/baseballData.js'
-import { calculateCancelRisk, getRiskInfo, getRiskReasons } from '@/utils/baseball/weatherRisk.js'
+import { riskOptions } from '@/data/baseball/baseballData.js'
+import { useBaseballStore } from '@/stores/baseballStore.js'
+import { getRiskInfo, getRiskReasons } from '@/utils/baseball/weatherRisk.js'
 
-const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY
-const WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather'
+const baseballStore = useBaseballStore()
+const { games, isLoading, lastUpdated, dataSource, errorMessage } = storeToRefs(baseballStore)
 
-// 원본 샘플 데이터를 복사하고 취소 확률을 계산한다.
-const games = ref(
-  baseballGames.map((game) => ({
-    ...game,
-    away: { ...game.away },
-    home: { ...game.home },
-    weather: { ...game.weather },
-    expectedScore: { ...game.expectedScore },
-    cancelRisk: calculateCancelRisk(game.weather, game.isDome),
-  })),
-)
-
-const selectedId = ref(games.value[0].id)
+const selectedId = ref(games.value[0]?.id || '')
 const riskFilter = ref('all')
 const search = ref('')
-const isLoading = ref(false)
-const lastUpdated = ref('날씨 연결 전')
 const notificationOn = ref(localStorage.getItem('baseballAlert') === 'true')
 const favoriteIds = ref(JSON.parse(localStorage.getItem('favoriteGames') || '[]'))
 let weatherTimer
@@ -59,14 +39,14 @@ const filteredGames = computed(() => {
 })
 
 const selectedGame = computed(() => {
-  return games.value.find((game) => game.id === selectedId.value) || games.value[0]
+  return games.value.find((game) => game.id === selectedId.value) || games.value[0] || null
 })
 
 const summary = computed(() => {
   const outdoorGames = games.value.filter((game) => !game.isDome)
-  const average = Math.round(
-    outdoorGames.reduce((total, game) => total + game.cancelRisk, 0) / outdoorGames.length,
-  )
+  const average = outdoorGames.length
+    ? Math.round(outdoorGames.reduce((total, game) => total + game.cancelRisk, 0) / outdoorGames.length)
+    : 0
 
   return {
     total: games.value.length,
@@ -77,24 +57,29 @@ const summary = computed(() => {
 })
 
 const selectedRisk = computed(() => {
+  if (!selectedGame.value) return { label: '경기 없음', level: 'safe' }
   return getRiskInfo(selectedGame.value.cancelRisk, selectedGame.value.isDome)
 })
 
 const riskReasons = computed(() => {
+  if (!selectedGame.value) return []
   return getRiskReasons(selectedGame.value.weather, selectedGame.value.isDome)
 })
 
 const expectedWinner = computed(() => {
   const game = selectedGame.value
+  if (!game) return ''
   if (game.expectedScore.away === game.expectedScore.home) return '동점 예상'
   return game.expectedScore.away > game.expectedScore.home ? `${game.away.shortName} 우세` : `${game.home.shortName} 우세`
 })
 
 const scoreGap = computed(() => {
+  if (!selectedGame.value) return 0
   return Math.abs(selectedGame.value.expectedScore.away - selectedGame.value.expectedScore.home)
 })
 
 const preparationItems = computed(() => {
+  if (!selectedGame.value) return []
   if (selectedGame.value.isDome) return ['가벼운 겉옷', '응원 도구', '대중교통 시간 확인']
   if (selectedGame.value.cancelRisk >= 60) return ['구단 취소 공지 확인', '우비', '방수 가방']
   if (selectedGame.value.cancelRisk >= 30) return ['접이식 우산', '방수팩', '얇은 겉옷']
@@ -102,6 +87,7 @@ const preparationItems = computed(() => {
 })
 
 const funMessage = computed(() => {
+  if (!selectedGame.value) return ''
   if (selectedGame.value.isDome) return '오늘은 방수포보다 응원봉이 먼저 출근합니다.'
   if (selectedGame.value.cancelRisk >= 60) return '선발 투수보다 구장 방수포의 등판 가능성이 높습니다.'
   if (selectedGame.value.cancelRisk >= 30) return '플레이볼과 빗방울의 눈치 싸움이 예상됩니다.'
@@ -117,6 +103,7 @@ const selectGame = (id) => {
 }
 
 const toggleFavorite = () => {
+  if (!selectedGame.value) return
   const id = selectedGame.value.id
   if (favoriteIds.value.includes(id)) {
     favoriteIds.value = favoriteIds.value.filter((item) => item !== id)
@@ -132,56 +119,10 @@ const changeNotification = (value) => {
   ElMessage.success(value ? '경기 변동 알림을 켰습니다.' : '경기 변동 알림을 껐습니다.')
 }
 
-// 한 경기장에 필요한 날씨를 요청한다.
-const getWeather = async (game) => {
-  const response = await axios.get(WEATHER_URL, {
-    params: {
-      lat: game.latitude,
-      lon: game.longitude,
-      appid: API_KEY,
-      units: 'metric',
-      lang: 'kr',
-    },
-  })
-
-  game.weather = {
-    status: response.data.weather[0].description,
-    temp: Math.round(response.data.main.temp),
-    humidity: response.data.main.humidity,
-    wind: response.data.wind.speed,
-    rain: response.data.rain?.['1h'] || 0,
-  }
-  game.cancelRisk = calculateCancelRisk(game.weather, game.isDome)
-}
-
-// 마지막으로 날씨를 가져온 시간을 저장한다.
-const updateTime = () => {
-  lastUpdated.value = new Date().toLocaleTimeString('ko-KR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-// 화면이 처음 열리면 모든 구장의 현재 날씨를 한 번에 가져온다.
-const loadAllWeather = async () => {
-  isLoading.value = true
-  lastUpdated.value = 'API 요청 중'
-
-  try {
-    await Promise.all(games.value.map((game) => getWeather(game)))
-    updateTime()
-  } catch (error) {
-    console.error(error)
-    lastUpdated.value = '일부 샘플 데이터 사용 중'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// 대시보드가 나타나면 즉시 호출하고 이후 5분마다 자동 갱신한다.
+// 대시보드가 나타나면 오늘의 공식 일정과 경기 시간 예보를 불러온다.
 onMounted(() => {
-  loadAllWeather()
-  weatherTimer = setInterval(loadAllWeather, 5 * 60 * 1000)
+  baseballStore.loadGames()
+  weatherTimer = setInterval(() => baseballStore.loadGames(), 5 * 60 * 1000)
 })
 
 // 다른 페이지로 이동하면 자동 갱신 타이머를 종료한다.
@@ -194,6 +135,12 @@ watch(favoriteIds, (value) => localStorage.setItem('favoriteGames', JSON.stringi
   deep: true,
 })
 watch(notificationOn, (value) => localStorage.setItem('baseballAlert', value))
+
+watch(games, (value) => {
+  if (!value.some((game) => game.id === selectedId.value)) {
+    selectedId.value = value[0]?.id || ''
+  }
+})
 </script>
 
 <template>
@@ -245,9 +192,13 @@ watch(notificationOn, (value) => localStorage.setItem('baseballAlert', value))
         </div>
 
         <GameSchedule :games="filteredGames" :selected-id="selectedId" @select="selectGame" />
+        <p class="schedule-source">
+          {{ dataSource }} · 경기 시간과 가장 가까운 OpenWeather 3시간 예보
+          <span v-if="errorMessage">· {{ errorMessage }}</span>
+        </p>
       </section>
 
-      <section id="analysis" class="analysis-grid">
+      <section v-if="selectedGame" id="analysis" class="analysis-grid">
         <article class="panel risk-panel">
           <div class="panel-head compact">
             <div>
@@ -321,7 +272,7 @@ watch(notificationOn, (value) => localStorage.setItem('baseballAlert', value))
         </article>
       </section>
 
-      <section id="records" class="bottom-grid">
+      <section v-if="selectedGame" id="records" class="bottom-grid">
         <article class="panel records-panel">
           <div class="panel-head compact">
             <div>
@@ -400,6 +351,7 @@ watch(notificationOn, (value) => localStorage.setItem('baseballAlert', value))
 .filters .el-input { flex: 1.3; }
 .filters .el-select { flex: 1; }
 .schedule-panel { margin-bottom: 18px; }
+.schedule-source { margin: 10px 0 0; color: #7d899b; font-size: 10px; }
 
 .analysis-grid { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 18px; margin-bottom: 18px; }
 .risk-main { display: grid; grid-template-columns: 180px 1fr; align-items: center; gap: 20px; padding: 12px 0 20px; }

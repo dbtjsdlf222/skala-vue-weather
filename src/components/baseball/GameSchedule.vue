@@ -14,7 +14,7 @@ const emit = defineEmits(['select'])
   <div class="schedule-table">
     <div class="table-head">
       <span>시간</span><span>경기</span><span>구장</span>
-      <span>날씨</span><span>취소 가능성</span><span>운영 전망</span>
+      <span>경기 시간 예보</span><span>취소 가능성</span><span>운영 전망</span>
     </div>
 
     <button
@@ -29,7 +29,7 @@ const emit = defineEmits(['select'])
       <span class="stadium">{{ game.stadium }}</span>
       <span class="weather-cell">
         <b>{{ game.weather.status }}</b>
-        <small>{{ game.weather.temp }}도 · {{ game.weather.rain }}mm</small>
+        <small>{{ game.weather.temp }}℃ · 비 {{ game.weather.rainChance ?? 0 }}%</small>
       </span>
       <span class="risk-progress">
         <el-progress
@@ -43,7 +43,7 @@ const emit = defineEmits(['select'])
       </span>
     </button>
 
-    <p v-if="games.length === 0" class="empty-list">조건에 맞는 경기가 없습니다.</p>
+    <p v-if="games.length === 0" class="empty-list">선택한 날짜에 예정된 경기가 없습니다.</p>
   </div>
 </template>
 

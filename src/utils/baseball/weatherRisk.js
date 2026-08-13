@@ -5,6 +5,11 @@ export const calculateCancelRisk = (weather, isDome) => {
 
   let risk = 5
 
+  // 경기 시간대 강수확률을 먼저 반영한다.
+  if (weather.rainChance >= 70) risk += 35
+  else if (weather.rainChance >= 40) risk += 20
+  else if (weather.rainChance >= 20) risk += 8
+
   if (weather.rain >= 10) risk += 55
   else if (weather.rain >= 5) risk += 45
   else if (weather.rain >= 1) risk += 30
@@ -33,6 +38,7 @@ export const getRiskReasons = (weather, isDome) => {
   if (isDome) return ['돔구장이라 강수 영향을 거의 받지 않습니다.']
 
   return [
+    `경기 시간 강수확률 ${weather.rainChance ?? 0}%`,
     `시간당 강수량 ${weather.rain}mm`,
     `습도 ${weather.humidity}%`,
     `풍속 ${weather.wind}m/s`,
