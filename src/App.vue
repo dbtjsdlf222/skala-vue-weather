@@ -33,6 +33,7 @@ const changeMode = (value) => {
 
 
     <nav class="nav">
+      <RouterLink to="/about" class="nav-btn">0. 소개</RouterLink>
       <RouterLink to="/" class="nav-btn">1. 기본</RouterLink>
       <RouterLink to="/search" class="nav-btn">2. 검색</RouterLink>
       <RouterLink to="/component" class="nav-btn">3. 컴포넌트</RouterLink>

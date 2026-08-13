@@ -21,6 +21,7 @@ Vue 3 문법을 단계별로 연습한 날씨 프로젝트와 날씨에 따른 �
 
 | 번호 | 화면 | 학습 내용 |
 |---|---|---|
+| 0 | 소개 | 프로젝트 목적과 1~7번 탭의 구현 내용 안내 |
 | 1 | 기본 | `ref`, `v-for`, `v-if`, 이벤트 처리 |
 | 2 | 검색 | `v-model`, `computed`, 배열 `filter()` |
 | 3 | 컴포넌트 | Props, Emit, Slot, Element Plus 알림창 |
@@ -250,6 +251,49 @@ npm run build
 npm run preview
 ```
 
+### 5. Vercel 자동 배포
+
+Vercel 프로젝트에 GitHub 저장소 `dbtjsdlf222/skala-vue-weather`와 `main` 브랜치를 연결했습니다. 이후 `main` 브랜치에 새로운 커밋을 Push하면 Vercel이 변경을 감지해 Production 배포를 자동으로 실행합니다.
+
+```text
+소스 코드 수정
+  -> GitHub main 브랜치에 Push
+  -> Vercel이 새 커밋 감지
+  -> ESLint 검사
+  -> Vite 프로덕션 빌드
+  -> Production 배포
+```
+
+Vercel의 Build Command는 다음과 같이 설정해 ESLint 오류가 있으면 배포가 진행되지 않도록 합니다.
+
+```bash
+# 코드 품질 검사에 성공한 경우에만 프로덕션 파일을 빌드한다.
+npm run lint && npm run build
+```
+
+배포 설정은 다음 값을 사용합니다.
+
+| 설정 | 값 |
+|---|---|
+| Git Repository | `dbtjsdlf222/skala-vue-weather` |
+| Production Branch | `main` |
+| Build Command | `npm run lint && npm run build` |
+| Output Directory | `dist` |
+| Environment Variable | `VITE_OPENWEATHER_API_KEY` |
+
+API 키는 GitHub에 올리지 않고 Vercel의 `Settings > Environment Variables`에 별도로 등록합니다. 저장소를 처음 연결했을 때 이미 Push된 커밋은 자동 배포가 시작되지 않을 수 있으므로, 새로운 커밋을 Push하거나 Vercel의 Deployments 화면에서 한 번 배포합니다.
+
+```bash
+# 변경된 파일을 Git에 추가한다.
+git add -A
+
+# 변경 내용을 하나의 커밋으로 저장한다.
+git commit -m "docs: 배포 문서 갱신"
+
+# main 브랜치에 Push하여 자동 배포를 실행한다.
+git push origin main
+```
+
 ## 프로젝트 구조
 
 ```text
@@ -275,7 +319,7 @@ skala-vue-weather/
     ├── stores/configStore.js      # Pinia 공통 상태
     ├── utils/baseball/weatherRisk.js # 취소 가능성 계산 함수
     └── views/
-        ├── practice/              # 1~7번 Vue 실습 화면
+        ├── practice/              # 0~7번 Vue 실습 화면
         ├── baseball/              # BALLCAST Layout과 5개 페이지
         └── Error404.vue           # 존재하지 않는 주소 처리
 ```
@@ -286,6 +330,7 @@ skala-vue-weather/
 
 | URL | 화면 |
 |---|---|
+| `/about` | 0. 소개 |
 | `/` | 1. 기본 |
 | `/search` | 2. 검색 |
 | `/component` | 3. 컴포넌트 |
